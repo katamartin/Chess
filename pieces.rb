@@ -6,13 +6,22 @@ class Piece
     @color = color
   end
 
-  def possible_moves
+  def fail_method
     raise "Not Yet Implemented"
   end
 
-  def move_dirs
-    raise "Not Yet Implemented"
+  def possible_moves
+    fail_method
   end
+
+  def move_dirs
+    fail_method
+  end
+
+  def to_s
+    fail_method
+  end
+
 end
 
 class SlidingPiece < Piece

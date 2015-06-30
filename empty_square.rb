@@ -3,5 +3,9 @@ class EmptySquare
     true
   end
 
+  def to_s
+    " "
+  end
+
   #TODO: more features later
 end
