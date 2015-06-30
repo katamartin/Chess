@@ -12,7 +12,7 @@ class Board
     populate
   end
 
-  def populate_big_rows(color, row)
+  def populate_big_row(color, row)
     big_row = []
     big_row << Rook.new(self, [row, 0], color)
     big_row << Knight.new(self, [row, 1], color)
@@ -25,15 +25,15 @@ class Board
     grid[row] = big_row
   end
 
-  def populate_pawn_rows(color, row)
+  def populate_pawn_row(color, row)
     grid[row].map!.with_index { |_, i| Pawn.new(self, [row, i], color) }
   end
 
   def populate
-    populate_big_rows(:black, 0)
-    populate_pawn_rows(:black, 1)
-    populate_big_rows(:white, 7)
-    populate_pawn_rows(:white, 6)
+    populate_big_row(:black, 0)
+    populate_pawn_row(:black, 1)
+    populate_big_row(:white, 7)
+    populate_pawn_row(:white, 6)
   end
 
   def [](pos)
@@ -48,7 +48,8 @@ class Board
 
   def valid_move?(color, pos)
     return false unless on_board?(pos)
-    return true if board[pos].empty?
+    return true if self[pos].empty?
+
     !same_color?(color, pos)
   end
 
@@ -57,10 +58,10 @@ class Board
   end
 
   def same_color?(color, pos)
-    board[pos].color == color
+    self[pos].color == color
   end
 
-  def move(pos)
+  def move_cursor(pos)
     new_position = [cursor[0] + pos[0], cursor[1] + pos[1]]
     self.cursor = new_position if on_board?(new_position)
     system("clear")
@@ -74,6 +75,9 @@ class Board
       row.each_with_index do |el, j|
         color = (i + j).even? ? :cyan : :light_red
         color = :yellow if [i, j] == cursor
+        unless self[cursor].empty?
+          color = :light_green if self[cursor].moves.include?([i, j])
+        end
         print " #{el.to_s} ".colorize(:background => color)
       end
       puts ""
@@ -81,15 +85,23 @@ class Board
     nil
   end
 
-  def read_char
-  STDIN.echo = false
-  STDIN.raw!
+  def in_check?(color)
 
-  input = STDIN.getc.chr
-  if input == "\e" then
-    input << STDIN.read_nonblock(3) rescue nil
-    input << STDIN.read_nonblock(2) rescue nil
   end
+
+  def move(start, end_pos)
+
+  end
+
+  def read_char
+    STDIN.echo = false
+    STDIN.raw!
+
+    input = STDIN.getc.chr
+    if input == "\e" then
+      input << STDIN.read_nonblock(3) rescue nil
+      input << STDIN.read_nonblock(2) rescue nil
+    end
 
   ensure
     STDIN.echo = true
@@ -100,21 +112,28 @@ class Board
 
   # oringal case statement from:
   # http://www.alecjacobson.com/weblog/?p=75
-  def show_single_key
+  def respond_to_input
     c = read_char
-
     case c
     when "\r"
       puts "RETURN"
     when "\e[A"
-      move([-1, 0])
+      move_cursor([-1, 0])
     when "\e[B"
-      move([1, 0])
+      move_cursor([1, 0])
     when "\e[C"
-      move([0, 1])
+      move_cursor([0, 1])
     when "\e[D"
-      move([0, -1])
+      move_cursor([0, -1])
+    when "\u0003"
+      raise Interrupt
     end
   end
 
+end
+
+b = Board.new
+b.render
+while true
+  b.respond_to_input
 end
