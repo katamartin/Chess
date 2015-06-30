@@ -9,6 +9,31 @@ class Board
   def initialize
     @grid = Array.new(8) { Array.new(8) { EmptySquare.new } }
     @cursor = [0, 0]
+    populate
+  end
+
+  def populate_big_rows(color, row)
+    big_row = []
+    big_row << Rook.new(self, [row, 0], color)
+    big_row << Knight.new(self, [row, 1], color)
+    big_row << Bishop.new(self, [row, 2], color)
+    big_row << King.new(self, [row, 3], color)
+    big_row << Queen.new(self, [row, 4], color)
+    big_row << Bishop.new(self, [row, 5], color)
+    big_row << Knight.new(self, [row, 6], color)
+    big_row << Rook.new(self, [row, 7], color)
+    grid[row] = big_row
+  end
+
+  def populate_pawn_rows(color, row)
+    grid[row].map!.with_index { |_, i| Pawn.new(self, [row, i], color) }
+  end
+
+  def populate
+    populate_big_rows(:black, 0)
+    populate_pawn_rows(:black, 1)
+    populate_big_rows(:white, 7)
+    populate_pawn_rows(:white, 6)
   end
 
   def [](pos)
@@ -47,7 +72,7 @@ class Board
     grid.each_with_index do |row, i|
       print "#{i} "
       row.each_with_index do |el, j|
-        color = (i + j).even? ? :blue : :red
+        color = (i + j).even? ? :cyan : :light_red
         color = :yellow if [i, j] == cursor
         print " #{el.to_s} ".colorize(:background => color)
       end
