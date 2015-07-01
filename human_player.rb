@@ -8,7 +8,7 @@ class HumanPlayer
 
   def play_turn
     begin
-      start_pos, end_pos = board.position_selection
+      start_pos, end_pos = board.position_selection(color)
       valid_piece_check(start_pos)
       board.move(start_pos, end_pos)
     rescue CheckError
@@ -23,6 +23,7 @@ class HumanPlayer
     end
   end
 
+  private
   def valid_piece_check(start_pos)
     raise WrongColor unless board[start_pos].color == color
   end

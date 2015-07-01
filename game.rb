@@ -2,7 +2,6 @@ require_relative 'board'
 require_relative 'human_player'
 
 class Game
-  attr_reader :board, :players
   def initialize
     @board = Board.new
     @players = [HumanPlayer.new(@board, :white), HumanPlayer.new(@board, :black)]
@@ -11,7 +10,7 @@ class Game
   def play
     until win?
       player = players.first
-      board.render
+      board.render(player.color)
       puts "#{player.color.to_s.capitalize}, it's your turn!"
       player.play_turn
       switch_players
@@ -19,6 +18,7 @@ class Game
     losing_message
   end
 
+  private
   def switch_players
     players.rotate!
   end
@@ -30,4 +30,6 @@ class Game
   def losing_message
     puts "Checkmate, #{players.first.color.to_s.capitalize} loses!"
   end
+
+  attr_reader :board, :players
 end

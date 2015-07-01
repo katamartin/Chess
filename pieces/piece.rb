@@ -18,7 +18,7 @@ class Piece
   end
 
   def to_s
-    symbol.colorize(color)
+    color == :white ? symbol.colorize(:light_white) : symbol.colorize(color)
   end
 
   def fail_method
