@@ -37,6 +37,7 @@ class Pawn < Piece
   def delta_set
     deltas = [[heading, 0]]
     deltas << [heading * 2, 0] if origin == pos
+    deltas
   end
 
   def attack_set

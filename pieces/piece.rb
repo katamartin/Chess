@@ -9,6 +9,10 @@ class Piece
     @symbol = "X"
   end
 
+  def is_king?
+    false
+  end
+
   def empty?
     false
   end
@@ -21,12 +25,16 @@ class Piece
     raise NotImplementedError
   end
 
-  def possible_moves
+  def moves
     fail_method
   end
 
   def move_dirs
     fail_method
+  end
+
+  def pos=(value)
+    @pos = value
   end
 
   def valid_move?(pos)

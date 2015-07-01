@@ -9,4 +9,8 @@ class King < SteppingPiece
   def delta_set
     deltas = DIAG_DELTAS + CART_DELTAS
   end
+
+  def is_king?
+    true
+  end
 end
