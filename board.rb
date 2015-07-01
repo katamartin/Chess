@@ -1,17 +1,34 @@
 require_relative 'pieces'
 require_relative 'empty_square'
+require_relative 'errors'
 require 'colorize'
 require 'io/console'
 
 class Board
-  attr_reader :grid, :teams
-  attr_accessor :cursor, :end_cursor
+  attr_accessor :cursor, :end_cursor, :grid, :teams
   def initialize
     @grid = Array.new(8) { Array.new(8) { EmptySquare.new } }
     @cursor = [0, 0]
     @end_cursor = nil
     @teams = {:white => [], :black => []}
     populate
+  end
+
+  def deep_dup
+    new_board = Board.new
+    new_board.grid = Array.new(8) { Array.new(8) { EmptySquare.new } }
+    new_board.teams = {:white => [], :black => []}
+    self.grid.each_with_index do |row, i|
+      row.each_with_index do |el, j|
+        unless el.empty?
+          new_piece = el.dup(new_board)
+          new_board[[i, j]] = new_piece
+          new_board.teams[new_piece.color] << new_piece
+        end
+      end
+    end
+
+    new_board
   end
 
   def populate_big_row(color, row)
@@ -50,11 +67,11 @@ class Board
     grid[x][y] = value
   end
 
-  def valid_move?(color, pos)
-    return false unless on_board?(pos)
-    return true if self[pos].empty?
-
-    !same_color?(color, pos)
+  def valid_move?(start_pos, end_pos)
+    duped = deep_dup
+    color = self[start_pos].color
+    return false if duped.move!(start_pos, end_pos).in_check?(color)
+    true
   end
 
   def on_board?(pos)
@@ -71,11 +88,11 @@ class Board
     if on_board?(new_position)
       this_cursor[0], this_cursor[1] = new_position[0], new_position[1]
     end
-    system("clear")
     render
   end
 
   def render
+    system("clear")
     puts "   #{("a".."h").to_a.join("  ")}"
     grid.each_with_index do |row, i|
       print "#{i} "
@@ -100,34 +117,45 @@ class Board
     opponent_pieces.any? { |piece| piece.moves.include?(king.pos) }
   end
 
+  def checkmate?(color)
+    return false unless in_check?(color)
+    return false if teams[color].any? do |piece|
+      piece.moves.any? { |move| valid_move?(piece.pos, move) }
+    end
+
+    puts "#{color.to_s} Checkmate"
+    true
+  end
+
   def opposite_color(color)
     return :black if color == :white
     return :white if color == :black
     nil
   end
 
-  def make_move
-    begin
-      start_pos = respond_to_input
-      self.end_cursor = start_pos.dup
-      end_pos = respond_to_input
-      move(start_pos, end_pos)
-      self.end_cursor = nil
-    rescue
-      puts "Invalid move!"
-      retry
-    end
-    system("clear")
-    render
+  def position_selection
+    start_pos = respond_to_input
+    self.end_cursor = start_pos.dup
+    end_pos = respond_to_input
+    self.end_cursor = nil
+    return [start_pos, end_pos]
   end
 
   def move(start, end_pos)
-    raise "empty_space" if self[start].empty?
+    raise InvalidSelection if self[start].empty?
     piece = self[start]
-    raise "not a valid move" unless piece.valid_move?(end_pos)
+    raise InvalidSelection unless piece.moves.include?(end_pos)
+    raise "In check!" unless valid_move?(start, end_pos)
+    move!(start, end_pos)
+  end
+
+  def move!(start, end_pos)
+    piece = self[start]
     self[end_pos] = piece
     self[start] = EmptySquare.new
     piece.pos = end_pos
+
+    self
   end
 
   def read_char
@@ -147,7 +175,7 @@ class Board
     return input
   end
 
-  # oringal case statement from:
+  # original case statement from:
   # http://www.alecjacobson.com/weblog/?p=75
   def respond_to_input
     loop do
@@ -168,13 +196,15 @@ class Board
       end
     end
   end
-
-
 end
 
 
 b = Board.new
+puts "check"
 b.render
 while true
-  b.make_move
+  move_coords = b.position_selection
+  b.move(*move_coords)
+  b.checkmate?(:black)
+  b.checkmate?(:white)
 end

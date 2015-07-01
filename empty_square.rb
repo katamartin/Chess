@@ -7,5 +7,9 @@ class EmptySquare
     " "
   end
 
+  def moves
+    []
+  end
+
   #TODO: more features later
 end
