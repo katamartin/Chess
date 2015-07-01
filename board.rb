@@ -71,6 +71,7 @@ class Board
     duped = deep_dup
     color = self[start_pos].color
     return false if duped.move!(start_pos, end_pos).in_check?(color)
+
     true
   end
 
@@ -107,6 +108,7 @@ class Board
       end
       puts ""
     end
+    display_check
     nil
   end
 
@@ -144,17 +146,26 @@ class Board
     raise InvalidSelection if self[start].empty?
     piece = self[start]
     raise InvalidSelection unless piece.moves.include?(end_pos)
-    raise "In check!" unless valid_move?(start, end_pos)
+    raise CheckError unless valid_move?(start, end_pos)
     move!(start, end_pos)
   end
 
   def move!(start, end_pos)
     piece = self[start]
+    remove_piece(self[end_pos])
     self[end_pos] = piece
     self[start] = EmptySquare.new
     piece.pos = end_pos
-
     self
+  end
+
+  def display_check
+    puts "White in check!" if in_check?(:white)
+    puts "Black in check!" if in_check?(:black)
+  end
+
+  def remove_piece(piece)
+    teams[piece.color].delete(piece) unless piece.empty?
   end
 
   def read_char

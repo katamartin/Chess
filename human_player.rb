@@ -11,6 +11,9 @@ class HumanPlayer
       start_pos, end_pos = board.position_selection
       valid_piece_check(start_pos)
       board.move(start_pos, end_pos)
+    rescue CheckError
+      puts "Check! Choose a different move."
+      retry
     rescue InvalidSelection
       puts "Invalid move. Valid moves highlighted in green."
       retry
