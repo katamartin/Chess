@@ -11,5 +11,9 @@ class EmptySquare
     []
   end
 
+  def color
+    nil
+  end
+
   #TODO: more features later
 end

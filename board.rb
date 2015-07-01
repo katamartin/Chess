@@ -123,7 +123,6 @@ class Board
       piece.moves.any? { |move| valid_move?(piece.pos, move) }
     end
 
-    puts "#{color.to_s} Checkmate"
     true
   end
 
@@ -196,15 +195,4 @@ class Board
       end
     end
   end
-end
-
-
-b = Board.new
-puts "check"
-b.render
-while true
-  move_coords = b.position_selection
-  b.move(*move_coords)
-  b.checkmate?(:black)
-  b.checkmate?(:white)
 end
