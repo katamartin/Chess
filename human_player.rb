@@ -1,7 +1,6 @@
 class HumanPlayer
   attr_reader :color, :board
   def initialize(board, color)
-    @name = "Some Random Player"
     @color = color
     @board = board
   end

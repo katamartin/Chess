@@ -5,6 +5,8 @@ require 'colorize'
 require 'io/console'
 
 class Board
+  attr_reader :teams
+  
   def initialize(pop = true)
     @grid = Array.new(8) { Array.new(8) { EmptySquare.new } }
     @cursor = [0, 0]
@@ -101,7 +103,7 @@ class Board
   end
 
   protected
-  attr_reader :teams, :grid
+  attr_reader :grid
 
   private
   attr_accessor :cursor, :end_cursor
