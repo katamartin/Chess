@@ -6,7 +6,7 @@ require 'io/console'
 
 class Board
   attr_reader :teams
-  
+
   def initialize(pop = true)
     @grid = Array.new(8) { Array.new(8) { EmptySquare.new } }
     @cursor = [0, 0]
@@ -39,14 +39,14 @@ class Board
     grid.each_with_index do |row, i|
       print "#{8 - i} "
       row.each_with_index do |el, j|
-        color = (i + j).even? ? :yellow : :cyan
-        color = :red if [i, j] == cursor
+        color = (i + j).even? ? :red : :light_black
+        color = :green if [i, j] == cursor
         unless self[cursor].empty?
           if self[cursor].moves.include?([i, j]) && self[cursor].color == turn_color
-            color = :light_red
+            color = :yellow
           end
         end
-        color = :red if [i, j] == end_cursor
+        color = :green if [i, j] == end_cursor
         print " #{el.to_s} ".colorize(:background => color)
       end
       puts ""
